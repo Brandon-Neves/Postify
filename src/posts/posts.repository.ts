@@ -18,6 +18,12 @@ export class PostsRepository {
     });
   }
 
+  async checkFindAllPosts(id: number) {
+    return await this.prisma.publication.findMany({
+      where: { postId: id },
+    });
+  }
+
   async findOnePost(id: number) {
     return await this.prisma.post.findFirst({
       where: { id }

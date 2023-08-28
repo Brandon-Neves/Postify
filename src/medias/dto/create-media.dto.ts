@@ -13,3 +13,8 @@ export class CreateMediaDto {
   @IsString()
   username: string;
 }
+
+export class UpdateMediaDto {
+  title?: string;
+  username?: string;
+}

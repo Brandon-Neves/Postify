@@ -4,31 +4,66 @@ import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { MediasFactory, PostsFactory, PublicationsFactory } from './factory/factory';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let postsFactory: PostsFactory;
+  let mediaFactory: MediasFactory;
+  let publicationFactory: PublicationsFactory;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, PrismaModule],
+      imports: [
+        AppModule,
+        PrismaModule,
+        PublicationsFactory,
+        PostsFactory,
+        MediasFactory,
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
-    prisma = app.get(PrismaService)
-
+    prisma = app.get(PrismaService);
+    mediaFactory = app.get(MediasFactory);
+    postsFactory = app.get(PostsFactory);
+    publicationFactory = app.get(PublicationsFactory);
     await prisma.publication.deleteMany();
     await prisma.media.deleteMany();
     await prisma.post.deleteMany();
-    
+
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/health (GET)', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/health')
       .expect(200)
-      .expect('Hello World!');
+      .expect("I'm okay!");
   });
+  describe('MediaController (e2e)', () => {
+    it('/medias (GET)', async () => {
+      return await request(app.getHttpServer())
+      .get('/medias')
+      .expect(200)
+      .expect([]);
+    });
+    it('/medias (POST)', async () => {
+      return await request(app.getHttpServer())
+      .post('/medias')
+      .send({title: 'test1', username: 'test2'})
+      .expect(201);
+    });
+    it('/medias/:id (GET)', async () => {
+      return await prisma.media.create({
+        data: {
+          title: 'test1',
+          username: 'test1',
+        },
+      });
+    })
+  })
 });
+
