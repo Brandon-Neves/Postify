@@ -10,27 +10,31 @@ export class PublicationsRepository {
 
 
 
-  create(data: CreatePublicationDto) {
-    return this.prisma.publication.create({
+  async createPublication(data: CreatePublicationDto) {
+    return await this.prisma.publication.create({
       data
     });
   }
 
-  findAll() {
-    return `This action returns all publications`;
+  async findAllPublications() {
+    return await this.prisma.publication.findMany({
+      orderBy: {date: 'asc'}
+    });
   }
 
-  findOne(id: number) {
-    return this.prisma.publication.findUnique({
+  async findOnePublication(id: number) {
+    return await this.prisma.publication.findFirst({
       where: { id }
     }) ;
   }
 
-  update(id: number, updatePublicationDto: UpdatePublicationDto) {
-    return `This action updates a #${id} publication`;
+  async updatePublication(id: number, data: UpdatePublicationDto) {
+    return await this.prisma.publication.update({ 
+      where: {id}, data});
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} publication`;
+  async removePublication(id: number) {
+    return await this.prisma.publication.delete({ 
+      where: {id} });
   }
 }
