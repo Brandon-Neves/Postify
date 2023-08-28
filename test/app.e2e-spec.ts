@@ -141,5 +141,110 @@ describe('AppController (e2e)', () => {
       .expect(200);
     });
   })
+  describe('PublicationController (e2e)', () => {
+    it('/publications (GET)', async () => {
+      return await request(app.getHttpServer())
+      .get('/publications')
+      .expect(200)
+      .expect([]);
+    });
+    it('/publications (POST)', async () => {
+      const media = await prisma.media.create({
+        data: {
+          title: 'test1',
+          username: 'test2',
+        },
+      });
+
+      const post = await prisma.post.create({
+        data: {
+          title: 'test1',
+          text: 'https://www.guineapigs.com/why-you-should-guinea',
+        },
+      });
+      return await request(app.getHttpServer())
+      .post('/publications')
+      .send({mediaId: media.id, postId: post.id, date: '2023-08-20',})
+      .expect(201);
+    });
+    it('/publications/:id (GET)', async () => {
+      const media = await prisma.media.create({
+        data: {
+          title: 'test1',
+          username: 'test2',
+        },
+      });
+
+      const post = await prisma.post.create({
+        data: {
+          title: 'test1',
+          text: 'https://www.guineapigs.com/why-you-should-guinea',
+        },
+      });
+      const publication = await prisma.publication.create({
+        data: {
+          mediaId: media.id,
+          postId: post.id,
+          date: '2023-08-20',
+        },
+      });
+      return request(app.getHttpServer()).get(`/publications/${publication.id}`).expect(200);
+    });
+    it('/publications/:id (PUT)', async () => {
+      const media = await prisma.media.create({
+        data: {
+          title: 'test1',
+          username: 'test2',
+        },
+      });
+
+      const post = await prisma.post.create({
+        data: {
+          title: 'test1',
+          text: 'https://www.guineapigs.com/why-you-should-guinea',
+        },
+      });
+      const publication = await prisma.publication.create({
+        data: {
+          mediaId: media.id,
+          postId: post.id,
+          date: '2023-08-20',
+        },
+      });
+      return request(app.getHttpServer())
+      .put(`/publications/${publication.id}`)
+      .send({
+          mediaId: media.id,
+          postId: post.id,
+          date: '2023-08-20',
+      })
+      .expect(200);
+    });
+    it('/publications/:id (DELETE)', async () => {
+      const media = await prisma.media.create({
+        data: {
+          title: 'test1',
+          username: 'test2',
+        },
+      });
+
+      const post = await prisma.post.create({
+        data: {
+          title: 'test1',
+          text: 'https://www.guineapigs.com/why-you-should-guinea',
+        },
+      });
+      const publication = await prisma.publication.create({
+        data: {
+          mediaId: media.id,
+          postId: post.id,
+          date: '2023-08-20',
+        },
+      });
+      return request(app.getHttpServer())
+      .delete(`/publications/${publication.id}`)
+      .expect(200);
+    });
+  })
 });
 
