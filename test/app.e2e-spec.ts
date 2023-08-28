@@ -92,5 +92,54 @@ describe('AppController (e2e)', () => {
       .expect(200);
     });
   })
+  describe('PostController (e2e)', () => {
+    it('/posts (GET)', async () => {
+      return await request(app.getHttpServer())
+      .get('/posts')
+      .expect(200)
+      .expect([]);
+    });
+    it('/posts (POST)', async () => {
+      return await request(app.getHttpServer())
+      .post('/posts')
+      .send({title: 'test1', text: '"https://www.guineapigs.com/why-you-should-guinea"'})
+      .expect(201);
+    });
+    it('/posts/:id (GET)', async () => {
+      const post = await prisma.post.create({
+        data: {
+          title: 'test1',
+          text: '"https://www.guineapigs.com/why-you-should-guinea"',
+        },
+      });
+      return request(app.getHttpServer()).get(`/post/${post.id}`).expect(200);
+    });
+    it('/posts/:id (PUT)', async () => {
+      const post = await prisma.post.create({
+        data: {
+          title: 'test1',
+          text: "https://www.guineapigs.com/why-you-should-guinea",
+        },
+      });
+      return request(app.getHttpServer())
+      .put(`/medias/${post.id}`)
+      .send({
+        title: 'test1',
+        text: 'https://www.guineapigs.com/why-you-should-guinea',
+      })
+      .expect(200);
+    });
+    it('/posts/:id (DELETE)', async () => {
+      const post = await prisma.post.create({
+        data: {
+          title: 'teste1',
+          text: 'https://www.guineapigs.com/why-you-should-guinea',
+        },
+      });
+      return request(app.getHttpServer())
+      .delete(`/posts/${post.id}`)
+      .expect(200);
+    });
+  })
 });
 
