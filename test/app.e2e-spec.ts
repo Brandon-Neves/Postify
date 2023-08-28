@@ -57,13 +57,40 @@ describe('AppController (e2e)', () => {
       .expect(201);
     });
     it('/medias/:id (GET)', async () => {
-      return await prisma.media.create({
+      const media = await prisma.media.create({
         data: {
           title: 'test1',
           username: 'test1',
         },
       });
-    })
+      return request(app.getHttpServer()).get(`/medias/${media.id}`).expect(200);
+    });
+    it('/medias/:id (PUT)', async () => {
+      const media = await prisma.media.create({
+        data: {
+          title: 'test1',
+          username: 'teste2',
+        },
+      });
+      return request(app.getHttpServer())
+      .put(`/medias/${media.id}`)
+      .send({
+        title: 'test1',
+        username: 'test2',
+      })
+      .expect(200);
+    });
+    it('/medias/:id (DELETE)', async () => {
+      const media = await prisma.media.create({
+        data: {
+          title: 'teste1',
+          username: 'teste2',
+        },
+      });
+      return request(app.getHttpServer())
+      .delete(`/medias/${media.id}`)
+      .expect(200);
+    });
   })
 });
 
