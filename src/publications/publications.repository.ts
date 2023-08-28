@@ -16,10 +16,31 @@ export class PublicationsRepository {
     });
   }
 
-  async findAllPublications() {
-    return await this.prisma.publication.findMany({
-      orderBy: {date: 'asc'}
+  async checkPost(id: number) {
+    const post = await this.prisma.post.findFirst({
+      where: { id },
     });
+    return post;
+  }
+  async checkMedia(id: number) {
+    const media = await this.prisma.media.findFirst({
+      where: { id },
+    });
+    return media;
+  }
+
+  async findAllPublications(published?: boolean, date?: Date) {
+    let publications = await this.prisma.publication.findMany();
+    if (published !== undefined) {
+      const currentDate = new Date();
+      publications = publications.filter((pub) =>
+        published ? pub.date < currentDate : pub.date > currentDate,
+      );
+    }
+    if (date) {
+      publications = publications.filter((pub) => pub.date < date);
+    }
+    return publications;
   }
 
   async findOnePublication(id: number) {

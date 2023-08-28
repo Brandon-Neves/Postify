@@ -1,26 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreatePublicationDto } from './dto/create-publication.dto';
 import { UpdatePublicationDto } from './dto/update-publication.dto';
+import { PublicationsRepository } from './publications.repository';
 
 @Injectable()
 export class PublicationsService {
-  create(createPublicationDto: CreatePublicationDto) {
-    return 'This action adds a new publication';
+  constructor(private readonly repository: PublicationsRepository) {}
+
+
+  async create(body: CreatePublicationDto) {
+    const post = await this.repository.checkPost(body.postId);
+    if(!post) throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    const media = await this.repository.checkMedia(body.mediaId);
+    if(!media) throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    return await this.repository.createPublication(body);
   }
 
-  findAll() {
-    return `This action returns all publications`;
+  async findAll(date?: Date, published?: boolean) {
+    return await this.repository.findAllPublications(published, date);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} publication`;
+  async findOne(id: number) {
+    return await this.repository.findOnePublication(id);
   }
 
-  update(id: number, updatePublicationDto: UpdatePublicationDto) {
-    return `This action updates a #${id} publication`;
+  async update(id: number, body: UpdatePublicationDto) {
+    const media = await this.repository.checkMedia(body.mediaId);
+    const post = await this.repository.checkPost(body.postId);
+    const publication = await this.repository.findOnePublication(id);
+    if(publication.date < new Date()) throw new HttpException('cannot update a publication', HttpStatus.FORBIDDEN)
+    if(!post || media || publication) throw new HttpException('Media not found', HttpStatus.NOT_FOUND);
+    return await this.repository.updatePublication(id, body);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} publication`;
+  async remove(id: number) {
+    return await this.repository.removePublication(id);
   }
 }
